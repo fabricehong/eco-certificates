@@ -4,8 +4,9 @@ import json
 
 
 @dataclass
-class ComponentScore:
+class EvaluationCriterion:
     """Score d'un composant avec son nombre de réponses positives et le total."""
+    description: str
     yes_count: int
     total_questions: int
 
@@ -15,20 +16,20 @@ class ComponentScore:
 
 
 @dataclass
-class Score:
+class Evaluation:
     """Score d'un groupe avec ses composants."""
-    local_score: ComponentScore
-    ecofriendly_score: ComponentScore
-    living_respect_score: ComponentScore
+    local_evaluation: EvaluationCriterion
+    ecofriendly_evaluation: EvaluationCriterion
+    living_respect_evaluation: EvaluationCriterion
     values_found: bool
     labels: List[str]
 
     def __str__(self):
         """Format le score pour l'affichage"""
         return "\n".join(
-            f"- Local: {self.local_score}",
-            f"- Eco-friendly: {self.ecofriendly_score}",
-            f"- Living Respect: {self.living_respect_score}"
+            f"- Local: {self.local_evaluation}",
+            f"- Eco-friendly: {self.ecofriendly_evaluation}",
+            f"- Living Respect: {self.living_respect_evaluation}"
         )
 
 
@@ -38,8 +39,8 @@ class ScoreProduct:
     name: str
     id: Optional[str]
     type: Optional[str]
-    product_scores: Score
-    service_scores: Score
+    product_evaluation: Evaluation
+    service_evaluation: Evaluation
 
     def __str__(self):
         """Format le produit pour l'affichage"""

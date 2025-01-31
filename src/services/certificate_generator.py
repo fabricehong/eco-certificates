@@ -4,28 +4,16 @@ from typing import Tuple
 
 from PIL import Image, ImageDraw, ImageFont
 
-from src.models.score_models import Score
+from src.models.score_models import Evaluation
 
 
 @dataclass
-class ScorePosition:
+class ElementPosition:
     """Position d'un groupe de score sur le certificat.
     
     Args:
         x: Position x du premier symbole
         y: Position y du premier symbole
-    """
-    x: int
-    y: int
-
-
-@dataclass
-class LabelPosition:
-    """Position des labels sur le certificat.
-    
-    Args:
-        x: Position x du texte
-        y: Position y du texte
     """
     x: int
     y: int
@@ -43,12 +31,12 @@ class CertificateGenerator:
         certificate_template: Path,
         active_leaf: Path,
         inactive_leaf: Path,
-        local_position: ScorePosition,
-        eco_position: ScorePosition,
-        living_position: ScorePosition,
+        local_position: ElementPosition,
+        eco_position: ElementPosition,
+        living_position: ElementPosition,
         leaf_spacing: int,
         leaf_width: int,
-        label_position: LabelPosition,
+        label_position: ElementPosition,
         font_path: Path,
         font_size: int
     ):
@@ -94,7 +82,7 @@ class CertificateGenerator:
         self.label_position = label_position
         self.font = ImageFont.truetype(str(font_path), font_size)
     
-    def generate_certificate(self, score: Score, output_path: Path) -> None:
+    def generate_certificate(self, score: Evaluation, output_path: Path) -> None:
         """Génère le certificat pour un score.
         
         Args:
@@ -105,9 +93,9 @@ class CertificateGenerator:
         certificate = self.template.copy()
         
         # Dessiner les scores
-        self._draw_score(certificate, score.local_score, self.local_position)
-        self._draw_score(certificate, score.ecofriendly_score, self.eco_position)
-        self._draw_score(certificate, score.living_respect_score, self.living_position)
+        self._draw_score(certificate, score.local_evaluation, self.local_position)
+        self._draw_score(certificate, score.ecofriendly_evaluation, self.eco_position)
+        self._draw_score(certificate, score.living_respect_evaluation, self.living_position)
         
         # Dessiner les labels s'il y en a
         if score.labels:
@@ -123,7 +111,7 @@ class CertificateGenerator:
         # Sauvegarder l'image
         certificate.save(output_path, 'PNG')
     
-    def _draw_score(self, certificate: Image, score: 'ComponentScore', position: ScorePosition) -> None:
+    def _draw_score(self, certificate: Image, score: 'ComponentScore', position: ElementPosition) -> None:
         """Dessine un score sous forme de feuilles.
         
         Args:

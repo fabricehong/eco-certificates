@@ -7,7 +7,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from services.csv_parser import CsvParser
 from services.score_calculator import ScoreCalculator
-from services.certificate_generator import CertificateGenerator, ScorePosition, LabelPosition
+from services.certificate_generator import CertificateGenerator, ElementPosition, LabelPosition
 
 
 def main():
@@ -23,13 +23,13 @@ def main():
         active_leaf=Path("images/active-leave.jpg"),
         inactive_leaf=Path("images/unactive-leave.jpg"),
         # Positions par défaut des scores (à ajuster selon l'image)
-        local_position=ScorePosition(x=x, y=820),
-        eco_position=ScorePosition(x=x, y=1100),
-        living_position=ScorePosition(x=x, y=1350),
+        local_position=ElementPosition(x=x, y=820),
+        eco_position=ElementPosition(x=x, y=1100),
+        living_position=ElementPosition(x=x, y=1350),
         leaf_spacing=100,  # Espacement entre les feuilles
         leaf_width=90,     # Largeur des feuilles, la hauteur sera calculée pour garder le ratio
         # Configuration des labels
-        label_position=LabelPosition(x=350, y=1700),  # En haut à droite
+        label_position=ElementPosition(x=350, y=1700),  # En haut à droite
         font_path=Path("fonts/Arial.ttf"),
         font_size=60  # Plus gros pour être plus visible
     )
@@ -50,8 +50,8 @@ def main():
         products_count += 1
         
         # Générer le certificat avec le score approprié (product ou service)
-        score = (product.product_scores if product.product_scores.values_found 
-                else product.service_scores)
+        score = (product.product_evaluation if product.product_evaluation.values_found 
+                else product.service_evaluation)
         
         # Générer le nom du fichier
         filename = product.name.lower().replace(" ", "_") + "_certificate.png"

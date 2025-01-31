@@ -1,6 +1,6 @@
 from typing import List
 
-from src.models.score_models import Score, ScoreProduct, ComponentScore
+from src.models.score_models import Evaluation, ScoreProduct, EvaluationCriterion
 from src.models.csv_models import CsvProduct, CsvEvaluation
 
 
@@ -24,12 +24,12 @@ class ScoreCalculator:
         """Initialise le calculateur avec la taille des composants"""
         self.max_score = component_size
         
-    def calculate_component_score(self, answers: List[str]) -> ComponentScore:
+    def calculate_evaluation_criterion(self, description: str, answers: List[str]) -> EvaluationCriterion:
         """Calcule le score d'un composant basé sur les réponses Yes/No"""
         yes_count = sum(1 for answer in answers if answer and answer.lower() == "yes")
-        return ComponentScore(yes_count=yes_count, total_questions=self.max_score)
+        return EvaluationCriterion(description=description, yes_count=yes_count, total_questions=self.max_score)
     
-    def calculate_score(self, evaluation: CsvEvaluation) -> Score:
+    def calculate_score(self, evaluation: CsvEvaluation) -> Evaluation:
         """Transforme une liste de CsvScore en Score avec les calculs.
         
         On reçoit 3 CsvScore :
@@ -38,18 +38,22 @@ class ScoreCalculator:
         - Living Respect (index 2)
         """
         # Chaque CsvScore contient les composants pour son type
-        local_answers = [c.value for c in evaluation.scores[0].score_component]
-        eco_answers = [c.value for c in evaluation.scores[1].score_component]
-        living_answers = [c.value for c in evaluation.scores[2].score_component]
+        local_csv_evaluation = evaluation.scores[0]
+        eco_csv_evaluation = evaluation.scores[1]
+        living_csv_evaluation = evaluation.scores[2]
+
+        local_answers = [c.value for c in local_csv_evaluation.score_component]
+        eco_answers = [c.value for c in eco_csv_evaluation.score_component]
+        living_answers = [c.value for c in living_csv_evaluation.score_component]
         
         # Vérifier si au moins une valeur non-null est trouvée
         all_answers = local_answers + eco_answers + living_answers
         values_found = any(answer is not None for answer in all_answers)
         
-        return Score(
-            local_score=self.calculate_component_score(local_answers),
-            ecofriendly_score=self.calculate_component_score(eco_answers),
-            living_respect_score=self.calculate_component_score(living_answers),
+        return Evaluation(
+            local_evaluation=self.calculate_evaluation_criterion(local_csv_evaluation.description, local_answers),
+            ecofriendly_evaluation=self.calculate_evaluation_criterion(eco_csv_evaluation.description, eco_answers),
+            living_respect_evaluation=self.calculate_evaluation_criterion(living_csv_evaluation.description, living_answers),
             values_found=values_found,
             labels=[label for label in evaluation.labels if label is not None and label.strip() != ""]
         )
@@ -60,8 +64,8 @@ class ScoreCalculator:
             name=csv_product.name,
             id=csv_product.id,
             type=csv_product.type,
-            product_scores=self.calculate_score(csv_product.product_evaluation),
-            service_scores=self.calculate_score(csv_product.service_evaluation)
+            product_evaluation=self.calculate_score(csv_product.product_evaluation),
+            service_evaluation=self.calculate_score(csv_product.service_evaluation)
         )
     
     def transform_products(self, csv_products: List[CsvProduct]) -> List[ScoreProduct]:
