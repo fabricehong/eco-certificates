@@ -7,7 +7,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from services.csv_parser import CsvParser
 from services.score_calculator import ScoreCalculator
-from services.certificate_generator import CertificateGenerator, ScorePosition
+from services.certificate_generator import CertificateGenerator, ScorePosition, LabelPosition
 
 
 def main():
@@ -27,7 +27,11 @@ def main():
         eco_position=ScorePosition(x=x, y=1100),
         living_position=ScorePosition(x=x, y=1350),
         leaf_spacing=100,  # Espacement entre les feuilles
-        leaf_width=90     # Largeur des feuilles, la hauteur sera calculée pour garder le ratio
+        leaf_width=90,     # Largeur des feuilles, la hauteur sera calculée pour garder le ratio
+        # Configuration des labels
+        label_position=LabelPosition(x=350, y=1700),  # En haut à droite
+        font_path=Path("fonts/Arial.ttf"),
+        font_size=60  # Plus gros pour être plus visible
     )
     
     # Créer le dossier output s'il n'existe pas

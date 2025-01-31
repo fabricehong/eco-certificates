@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Tuple
 
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
 from src.models.score_models import Score
 
@@ -14,6 +14,18 @@ class ScorePosition:
     Args:
         x: Position x du premier symbole
         y: Position y du premier symbole
+    """
+    x: int
+    y: int
+
+
+@dataclass
+class LabelPosition:
+    """Position des labels sur le certificat.
+    
+    Args:
+        x: Position x du texte
+        y: Position y du texte
     """
     x: int
     y: int
@@ -35,7 +47,10 @@ class CertificateGenerator:
         eco_position: ScorePosition,
         living_position: ScorePosition,
         leaf_spacing: int,
-        leaf_width: int
+        leaf_width: int,
+        label_position: LabelPosition,
+        font_path: Path,
+        font_size: int
     ):
         """Initialise le générateur avec les images et positions.
         
@@ -48,6 +63,9 @@ class CertificateGenerator:
             living_position: Position des feuilles pour le score living respect
             leaf_spacing: Espacement entre les feuilles (en pixels)
             leaf_width: Largeur souhaitée pour les feuilles (la hauteur sera calculée pour garder le ratio)
+            label_position: Position des labels sur le certificat
+            font_path: Chemin vers la police à utiliser pour les labels
+            font_size: Taille de la police en points
         """
         # Charger les images
         self.template = Image.open(certificate_template).convert('RGBA')
@@ -71,6 +89,10 @@ class CertificateGenerator:
         
         # Espacement entre les feuilles
         self.leaf_spacing = leaf_spacing
+        
+        # Configuration des labels
+        self.label_position = label_position
+        self.font = ImageFont.truetype(str(font_path), font_size)
     
     def generate_certificate(self, score: Score, output_path: Path) -> None:
         """Génère le certificat pour un score.
@@ -86,6 +108,17 @@ class CertificateGenerator:
         self._draw_score(certificate, score.local_score, self.local_position)
         self._draw_score(certificate, score.ecofriendly_score, self.eco_position)
         self._draw_score(certificate, score.living_respect_score, self.living_position)
+        
+        # Dessiner les labels s'il y en a
+        if score.labels:
+            draw = ImageDraw.Draw(certificate)
+            labels_text = ", ".join(score.labels)
+            draw.text(
+                (self.label_position.x, self.label_position.y),
+                labels_text,
+                font=self.font,
+                fill=(0, 0, 0)  # Noir
+            )
         
         # Sauvegarder l'image
         certificate.save(output_path, 'PNG')
