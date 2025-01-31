@@ -1,5 +1,5 @@
 from dataclasses import dataclass, asdict
-from typing import Optional
+from typing import Optional, List
 import json
 
 
@@ -21,6 +21,7 @@ class Score:
     ecofriendly_score: ComponentScore
     living_respect_score: ComponentScore
     values_found: bool
+    labels: List[str]
 
     def __str__(self):
         """Format le score pour l'affichage"""

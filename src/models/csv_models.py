@@ -15,6 +15,11 @@ class CsvScore:
     description: str        # La description détaillée du score, ex: "The Product is Local ... and all following information in the cell such as examples."
     score_component: List[ScoreComponent]  # Les colonnes de questions/réponses pour ce score
 
+@dataclass
+class CsvEvaluation:
+    scores: List[CsvScore]
+    labels: List[str]       # labels bio
+
 
 @dataclass
 class CsvProduct:
@@ -22,8 +27,8 @@ class CsvProduct:
     name: str
     id: Optional[str]
     type: Optional[str]
-    product_scores: List[CsvScore]
-    service_scores: List[CsvScore]
+    product_evaluation: CsvEvaluation
+    service_evaluation: CsvEvaluation
 
     def __str__(self) -> str:
         """Format le produit pour l'affichage"""

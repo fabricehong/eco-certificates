@@ -1,7 +1,7 @@
 from typing import List
 
 from src.models.score_models import Score, ScoreProduct, ComponentScore
-from src.models.csv_models import CsvProduct, CsvScore
+from src.models.csv_models import CsvProduct, CsvEvaluation
 
 
 class ScoreCalculator:
@@ -29,7 +29,7 @@ class ScoreCalculator:
         yes_count = sum(1 for answer in answers if answer and answer.lower() == "yes")
         return ComponentScore(yes_count=yes_count, total_questions=self.max_score)
     
-    def calculate_score(self, csv_scores: List[CsvScore]) -> Score:
+    def calculate_score(self, evaluation: CsvEvaluation) -> Score:
         """Transforme une liste de CsvScore en Score avec les calculs.
         
         On reçoit 3 CsvScore :
@@ -38,9 +38,9 @@ class ScoreCalculator:
         - Living Respect (index 2)
         """
         # Chaque CsvScore contient les composants pour son type
-        local_answers = [c.value for c in csv_scores[0].score_component]
-        eco_answers = [c.value for c in csv_scores[1].score_component]
-        living_answers = [c.value for c in csv_scores[2].score_component]
+        local_answers = [c.value for c in evaluation.scores[0].score_component]
+        eco_answers = [c.value for c in evaluation.scores[1].score_component]
+        living_answers = [c.value for c in evaluation.scores[2].score_component]
         
         # Vérifier si au moins une valeur non-null est trouvée
         all_answers = local_answers + eco_answers + living_answers
@@ -50,24 +50,18 @@ class ScoreCalculator:
             local_score=self.calculate_component_score(local_answers),
             ecofriendly_score=self.calculate_component_score(eco_answers),
             living_respect_score=self.calculate_component_score(living_answers),
-            values_found=values_found
+            values_found=values_found,
+            labels=[label for label in evaluation.labels if label is not None and label.strip() != ""]
         )
     
     def transform_product(self, csv_product: CsvProduct) -> ScoreProduct:
-        """Transforme un CsvProduct en ScoreProduct en calculant les scores.
-        
-        Args:
-            csv_product: Le produit avec les réponses brutes du CSV
-            
-        Returns:
-            Le produit avec les scores calculés
-        """
+        """Transforme un CsvProduct en ScoreProduct avec les scores calculés"""
         return ScoreProduct(
             name=csv_product.name,
             id=csv_product.id,
             type=csv_product.type,
-            product_scores=self.calculate_score(csv_product.product_scores),
-            service_scores=self.calculate_score(csv_product.service_scores)
+            product_scores=self.calculate_score(csv_product.product_evaluation),
+            service_scores=self.calculate_score(csv_product.service_evaluation)
         )
     
     def transform_products(self, csv_products: List[CsvProduct]) -> List[ScoreProduct]:
