@@ -34,26 +34,36 @@ class CertificateGenerator:
         local_position: ElementPosition,
         eco_position: ElementPosition,
         living_position: ElementPosition,
+        local_description_position: ElementPosition,
+        eco_description_position: ElementPosition,
+        living_description_position: ElementPosition,
         leaf_spacing: int,
         leaf_width: int,
         label_position: ElementPosition,
         font_path: Path,
-        font_size: int
+        bold_font_path: Path,
+        font_size: int,
+        description_font_size: int
     ):
         """Initialise le générateur avec les images et positions.
         
         Args:
-            certificate_template: Chemin vers l'image de base du certificat
-            active_leaf: Chemin vers l'image de feuille active
-            inactive_leaf: Chemin vers l'image de feuille inactive
-            local_position: Position des feuilles pour le score local
-            eco_position: Position des feuilles pour le score eco-friendly
-            living_position: Position des feuilles pour le score living respect
-            leaf_spacing: Espacement entre les feuilles (en pixels)
-            leaf_width: Largeur souhaitée pour les feuilles (la hauteur sera calculée pour garder le ratio)
-            label_position: Position des labels sur le certificat
-            font_path: Chemin vers la police à utiliser pour les labels
-            font_size: Taille de la police en points
+            certificate_template: Image du certificat vierge
+            active_leaf: Image d'une feuille active
+            inactive_leaf: Image d'une feuille inactive
+            local_position: Position du score local
+            eco_position: Position du score eco-friendly
+            living_position: Position du score living respect
+            local_description_position: Position de la description du score local
+            eco_description_position: Position de la description du score eco-friendly
+            living_description_position: Position de la description du score living respect
+            leaf_spacing: Espacement entre les feuilles en pixels
+            leaf_width: Largeur des feuilles en pixels
+            label_position: Position des labels
+            font_path: Chemin vers la police à utiliser
+            bold_font_path: Chemin vers la police en gras à utiliser
+            font_size: Taille de la police pour les labels
+            description_font_size: Taille de la police pour les descriptions
         """
         # Charger les images
         self.template = Image.open(certificate_template).convert('RGBA')
@@ -75,12 +85,18 @@ class CertificateGenerator:
         self.eco_position = eco_position
         self.living_position = living_position
         
+        # Positions des descriptions
+        self.local_description_position = local_description_position
+        self.eco_description_position = eco_description_position
+        self.living_description_position = living_description_position
+        
         # Espacement entre les feuilles
         self.leaf_spacing = leaf_spacing
         
         # Configuration des labels
         self.label_position = label_position
         self.font = ImageFont.truetype(str(font_path), font_size)
+        self.description_font = ImageFont.truetype(str(bold_font_path), description_font_size)
     
     def generate_certificate(self, score: Evaluation, output_path: Path) -> None:
         """Génère le certificat pour un score.
@@ -97,9 +113,29 @@ class CertificateGenerator:
         self._draw_score(certificate, score.ecofriendly_evaluation, self.eco_position)
         self._draw_score(certificate, score.living_respect_evaluation, self.living_position)
         
+        # Dessiner les descriptions
+        draw = ImageDraw.Draw(certificate)
+        draw.text(
+            (self.local_description_position.x, self.local_description_position.y),
+            score.local_evaluation.description,
+            font=self.description_font,
+            fill=(0, 0, 0)
+        )
+        draw.text(
+            (self.eco_description_position.x, self.eco_description_position.y),
+            score.ecofriendly_evaluation.description,
+            font=self.description_font,
+            fill=(0, 0, 0)
+        )
+        draw.text(
+            (self.living_description_position.x, self.living_description_position.y),
+            score.living_respect_evaluation.description,
+            font=self.description_font,
+            fill=(0, 0, 0)
+        )
+        
         # Dessiner les labels s'il y en a
         if score.labels:
-            draw = ImageDraw.Draw(certificate)
             labels_text = ", ".join(score.labels)
             draw.text(
                 (self.label_position.x, self.label_position.y),
