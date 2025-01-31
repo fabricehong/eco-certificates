@@ -7,6 +7,61 @@ from models.eco_form import CsvProduct, CsvScore, ScoreComponent
 
 
 class CsvParser:
+    """Parser pour le fichier CSV d'éco-certification.
+    
+    Cette classe gère le parsing d'un fichier CSV contenant les évaluations écologiques
+    des produits et services. Le fichier CSV a une structure spécifique :
+
+    Structure du CSV :
+    -----------------
+    - Ligne 1 : En-têtes généraux (ID, Type, etc.)
+    - Ligne 2 : Descriptions détaillées des scores
+    - Ligne 3 : Questions spécifiques pour chaque composant de score
+    - Ligne 4+ : Données des produits
+
+    Format des colonnes :
+    -------------------
+    1. Colonnes d'identification (0-3) :
+       - ID : Identifiant unique du produit
+       - Type : Type de produit (simple, variable, etc.)
+       - Name : Nom du produit
+    
+    2. Colonnes de score produit :
+       - Commence après les colonnes d'identification
+       - Groupe de N composants (par défaut 5)
+       - Chaque composant a une question (ligne 3)
+       - Les réponses sont généralement Yes/No
+    
+    3. Colonnes de score service :
+       - Commence après les colonnes de score produit
+       - Même structure que les scores produit
+       - Questions spécifiques aux services
+
+    Algorithme de Parsing :
+    ---------------------
+    1. Initialisation :
+       - Lecture du CSV avec pandas
+       - Identification des index de début des scores produit/service
+       - Création des templates de score avec leurs descriptions
+    
+    2. Pour chaque ligne de produit :
+       - Extraction des informations de base (ID, Type, Name)
+       - Pour chaque type de score (produit/service) :
+         a. Copie du template de score
+         b. Remplissage des valeurs pour chaque composant
+         c. Ajout du score au produit
+    
+    3. Validation et nettoyage :
+       - Skip des lignes vides
+       - Nettoyage des valeurs (strip, gestion des NaN)
+       - Conversion des types de données
+
+    Usage :
+    ------
+    parser = CsvParser(csv_path, score_component_size=5)
+    products = parser.parse_products()
+    """
+
     def __init__(self, csv_path: Path, score_component_size: int):
         """Initialize the CSV parser with the path to the CSV file."""
         self.csv_path = csv_path
