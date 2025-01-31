@@ -3,7 +3,7 @@
 Une démonstration d'intégration entre GitHub et Google Colab pour l'analyse d'impact écologique.
 
 ## Ouvrir dans Google Colab
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fabricehong/eco-certificates/blob/main/notebooks/eco_analysis.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fabricehong/eco-certificates/blob/main/notebooks/eco_analysis.ipynb?force_timestamp=20250131)
 
 ## Structure du Projet
 
