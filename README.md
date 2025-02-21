@@ -65,21 +65,66 @@ cd eco-certificate
 pip install -r requirements.txt
 ```
 
-## Utilisation
+## Utilisation Standard
 
-Deux options s'offrent à vous :
+### Préparer les Données d'Entrée
 
-### 1. Via Google Colab
-1. Cliquez sur le badge "Open in Colab" ci-dessus
-2. Le notebook s'exécutera directement dans votre navigateur
-3. La première cellule configurera automatiquement l'environnement
+1. Placez votre fichier CSV d'évaluation dans le dossier `input/`
+   - Le nom par défaut attendu est `product and service form.csv`
+   - Le fichier doit contenir les réponses au questionnaire d'évaluation (Yes/No)
+   - Deux exemples sont fournis : 
+     - `product and service form - small.csv` (version réduite pour test)
+     - `product and service form - full.csv` (version complète)
 
-### 2. En Local
-1. Préparer le fichier CSV avec les données d'évaluation
-2. Exécuter le script principal :
-```bash
-python src/main.py
-```
+### Générer les Certificats
+
+#### Option 1 : Via Google Colab (Recommandé)
+1. Cliquez sur le badge "Open in Colab" en haut de ce README
+2. Uploadez votre fichier CSV quand demandé
+3. Exécutez les cellules du notebook
+4. Les certificats générés seront disponibles dans le dossier `output/`
+
+#### Option 2 : En Local
+1. Installez les dépendances :
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Exécutez le script principal :
+   ```bash
+   python src/main.py
+   ```
+3. Les certificats seront générés dans le dossier `output/` avec le format :
+   - Un fichier PNG par produit/service
+   - Nom du fichier : `nom_du_produit_certificate.png`
+
+### Résultats
+- Les certificats générés se trouvent dans le dossier `output/`
+- Le script affiche un résumé des produits traités avec leurs scores
+- Pour chaque produit, vous verrez :
+  - Le nom du produit
+  - Les scores détaillés
+  - Le chemin du certificat généré
+
+## Configuration Avancée (Optionnel)
+
+### Personnalisation des Images
+Le générateur utilise par défaut les images fournies dans le dossier `images/` :
+- `certificate.png` : Template du certificat
+- `active-leave.png` : Icône de feuille active (score positif)
+- `unactive-leave.png` : Icône de feuille inactive (score négatif)
+
+Pour personnaliser :
+1. Placez vos images dans le dossier `images/`
+2. Modifiez les chemins dans `src/main.py` si nécessaire
+
+### Personnalisation des Polices
+Par défaut, le système utilise Arial Bold. Pour utiliser d'autres polices :
+1. Placez vos fichiers TTF dans le dossier `fonts/`
+2. Modifiez les paramètres dans `src/main.py` :
+   - `font_path` : Police standard
+   - `bold_font_path` : Police en gras
+   - `font_size` : Taille des labels
+   - `description_font_size` : Taille des descriptions
 
 ## État d'Avancement
 
