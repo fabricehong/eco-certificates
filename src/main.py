@@ -21,8 +21,8 @@ def main():
     x = 150
     generator = CertificateGenerator(
         certificate_template=Path("images/certificate.png"),
-        active_leaf=Path("images/active-leave.jpg"),
-        inactive_leaf=Path("images/unactive-leave.jpg"),
+        active_leaf=Path("images/active-leave.png"),
+        inactive_leaf=Path("images/unactive-leave.png"),
         # Positions des scores
         local_position=ElementPosition(x=x, y=820),
         eco_position=ElementPosition(x=x, y=1100),
